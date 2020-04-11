@@ -312,14 +312,16 @@ subquestion: |
       1. `integer` is one line to put a **whole number** in
       1. `currency` is one line to put money in
       1. `number` is one line for some other kind of number that has decimals
-      1. `area` is for multiple lines of text
-      1. `yesno` is a checkbox
+      1. `date` one line for a date
+      1. `email` one line for an email
   
   We have tried to guess the type of field from the name of the variable.
   
   ---
 fields:
   - code: field_question
+#      1. `area` is for multiple lines of text
+#      1. `yesno` is a checkbox
 ---
 code: |
   questions.there_are_any = True
