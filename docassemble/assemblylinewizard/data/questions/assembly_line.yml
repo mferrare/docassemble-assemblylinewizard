@@ -4,6 +4,7 @@ metadata:
 ---
 features:
   question help button: True
+  labels above fields: True
 ---
 modules:
   - docassemble.base.util
@@ -292,20 +293,31 @@ code: |
 ---
 continue button field: choose_field_types
 question: |
-  Label the fields
+  Write the questions
 subquestion: |
-  Below is a list of the field names in this PDF.
+  Below is the list of the label names you have in the PDF fields.
   
-  We left out the fields that are included in our basic interview already.
+  **Why are some missing?**[BR]
+  We left out the fields that we can automate.
   
-  For each field, please enter in a descriptive label (this shows to the user),
-  as well as selecting the type of information the field will hold.
-  
-  * `yesno` is a checkbox
-  * `text` is a normal text field. `area` is a text field with more room (3 lines by default)
-  * `integer` is a whole number, while `number` can have a decimal point. `currency` represents a dollar figure
+  For each field:
+
+  1. Write the question that the user will see
+  1. Pick the type of field the user will see:
+      1. A **checkbox**
+      1. **One line** to put their answer on
+      1. Room for a **paragraph** or more for their answer
+  1. Pick the type of information the user needs to give. This sounds a bit like a repeat of the last one, but it really isn't. This is the way it's working for now.
+      1. `text` is one line to put text in
+      1. `integer` is one line to put a **whole number** in
+      1. `currency` is one line to put money in
+      1. `number` is one line for some other kind of number that has decimals
+      1. `area` is for multiple lines of text
+      1. `yesno` is a checkbox
   
   We have tried to guess the type of field from the name of the variable.
+  
+  ---
 fields:
   - code: field_question
 ---
@@ -323,9 +335,10 @@ subquestion: |
   Remember, this is a draft you can edit later. It does not need to be perfect.
   You can accept the default if you're not sure yet.
 fields:
-  - What should the title of this question be? : questions[i].question_text
+  - What should the title of this page be? : questions[i].question_text
     default: Screen ${nice_number(i+1)}
   - What is the text that appears under the title? : questions[i].subquestion_text
+    required: False
     default: Placeholder text
     input type: area
   - Is at least one question on this screen required?: questions[i].has_mandatory_field
