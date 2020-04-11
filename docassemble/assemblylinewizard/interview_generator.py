@@ -9,6 +9,7 @@ from docassemble.base.pandoc import word_to_markdown, convertible_mimetypes, con
 from docassemble.base.core import DAObject, DADict, DAList
 from docassemble.base.error import DAError
 from docassemble.base.logger import logmessage
+from docassemble.base.util import log  # log to console
 import docassemble.base.functions
 import docassemble.base.parse
 import docassemble.base.pdftk
@@ -221,10 +222,12 @@ class DAQuestion(DAObject):
             if self.subquestion_text != "":
                 content += "subquestion: |\n" + indent_by(self.subquestion_text, 2)
             if len(self.field_list) == 1:
-                if self.field_list[0].field_type == 'yesno':
+                #if self.field_list[0].field_type == 'yesno':
+                if self.field_list[0].input_type == 'yesno':
                     content += "yesno: " + varname(self.field_list[0].variable) + "\n"
                     done_with_content = True
-                elif self.field_list[0].field_type == 'yesnomaybe':
+                #elif self.field_list[0].field_type == 'yesnomaybe':
+                elif self.field_list[0].input_type == 'yesnomaybe':
                     content += "yesnomaybe: " + varname(self.field_list[0].variable) + "\n"
                     done_with_content = True
             if self.field_list[0].field_type == 'end_attachment':
@@ -273,33 +276,56 @@ class DAQuestion(DAObject):
             if not done_with_content:
                 content += "fields:\n"
                 for field in self.field_list:
+                  log( 'input_type: ' + field.input_type, 'console' )
+                  
                     if field.has_label:
                         content += "  - " + repr_str(field.label) + ": " + varname(field.variable) + "\n"
                     else:
                         content += "  - no label: " + varname(field.variable) + "\n"
-                    if field.field_type == 'yesno':
-                        content += "    datatype: yesno\n"
-                    elif field.field_type == 'yesnomaybe':
-                        content += "    datatype: yesnomaybe\n"
-                    elif field.field_type == 'area':
-                        content += "    input type: area\n"
-                    elif field.field_type == 'file':
-                        content += "    datatype: file\n"
-                    elif field.field_data_type == 'integer':
-                        content += "    datatype: integer\n"
-                    elif field.field_data_type == 'number':
-                        content += "    datatype: number\n"
-                    elif field.field_data_type == 'currency':
-                        content += "    datatype: currency\n"
-                    elif field.field_data_type == 'date':
-                        content += "    datatype: date\n"
-                    elif field.field_data_type == 'email':
-                        content += "    datatype: email\n"
-                    elif field.field_data_type == 'range':
-                        content += "    datatype: range\n"
-                        content += "    min: " + field.range_min + "\n"
-                        content += "    max: " + field.range_max + "\n"
-                        content += "    step: " + field.range_step + "\n"
+                    
+                    # Create one `fields:`'s `datatype:` based on
+                    # an attribute of the data sent in.
+                    input_type_to_data_type_map = {
+                      'yesno': 'yesno',
+                      'text': 'text',
+                      'area': 'area',
+                      'integer': 'integer',
+                      'currency': 'currency',
+                      'number': 'number',
+                      'date': 'date',
+                      'email': 'email',
+                    }
+                    input_type = field.input_type
+                    content += "    datatype: "
+                    content += r"{ input_type_to_data_type_map[ input_type ] }"
+                    content += "\n"
+                    
+                    # VERSION WARNING: Removes currently unused datatype
+                    # contingencies
+                        
+                    # if field.field_type == 'yesno':
+                    #     content += "    datatype: yesno\n"
+                    # elif field.field_type == 'yesnomaybe':
+                    #     content += "    datatype: yesnomaybe\n"  #not currently used
+                    # elif field.field_type == 'area':
+                    #     content += "    input type: area\n"
+                    # elif field.field_type == 'file':
+                    #     content += "    datatype: file\n"
+                    # elif field.field_data_type == 'integer':
+                    #     content += "    datatype: integer\n"
+                    # elif field.field_data_type == 'number':
+                    #     content += "    datatype: number\n"
+                    # elif field.field_data_type == 'currency':
+                    #     content += "    datatype: currency\n"
+                    # elif field.field_data_type == 'date':
+                    #     content += "    datatype: date\n"
+                    # elif field.field_data_type == 'email':
+                    #     content += "    datatype: email\n"
+                    # elif field.field_data_type == 'range':  # not currently used
+                    #     content += "    datatype: range\n"
+                    #     content += "    min: " + field.range_min + "\n"
+                    #     content += "    max: " + field.range_max + "\n"
+                    #     content += "    step: " + field.range_step + "\n"
             # if self.interview.has_decorations() and self.decoration and self.decoration != 'None':
             #     content += "decoration: " + str(self.decoration) + "\n"
         elif self.type == 'signature':

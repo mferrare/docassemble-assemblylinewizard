@@ -259,11 +259,15 @@ code: |
   set_metadata = True
 ---
 code: |
-  # Create code for the question that we use to label
-  # each field.
+  # Create code for the question in the wizard that legal
+  # SMEs will use to manually assign values to the questions
+  # that couldn't be automated.
   
-  field_types = ['yesno','text','area']  
+  field_types = ['yesno','text','area']
   field_data_types = ['text','integer','number','currency','date','email']
+
+  input_types = ['yesno','text','area', 'integer', 'currency', 'number', 'date', 'email']
+  # all_field_types = ['checkbox','one line','multiple lines', 'integer', 'currency', 'other number', 'date', 'email'] 
 
   temp_field_question = []
   for index, field in enumerate(fields.elements):      
@@ -271,22 +275,29 @@ code: |
       'note': '**' + field.variable + '**'
     })
     temp_field_question.append({
-      'label': "What should the label be for `" + field.variable + "`?",
+      'label': "What should the question say?",
       'field': 'fields[' + str(index) + '].label',
       'default': field.variable_name_guess
     })
+    # temp_field_question.append({
+    #   'label': "What type of input will the user see?",
+    #   'field': 'fields[' + str(index) + '].field_type',
+    #   'choices': field_types,
+    #   'default': field.field_type_guess if hasattr(field, 'field_type_guess') else None
+    # })
+    # temp_field_question.append({
+    #   'label': "What type of information does the user have to give?",
+    #   'field': 'fields[' + str(index) + '].field_data_type',
+    #   'choices': field_data_types,
+    #   'default': field.field_data_type_guess if hasattr(field, 'field_data_type_guess') else None,
+    #   'hide if': {'variable': 'fields[' + str(index) + '].field_type', 'is': 'yesno'}
+    # })
+
     temp_field_question.append({
-      'label': "What type of input is `" + field.variable + "`?",
-      'field': 'fields[' + str(index) + '].field_type',
-      'choices': field_types,
-      'default': field.field_type_guess if hasattr(field, 'field_type_guess') else None
-    })
-    temp_field_question.append({
-      'label': "What datatype is `" + field.variable + "`?",
-      'field': 'fields[' + str(index) + '].field_data_type',
-      'choices': field_data_types,
+      'label': "What type of information does the user have to give?",
+      'field': 'fields[' + str(index) + '].input_type',
+      'choices': input_types,
       'default': field.field_data_type_guess if hasattr(field, 'field_data_type_guess') else None,
-      'hide if': {'variable': 'fields[' + str(index) + '].field_type', 'is': 'yesno'}
     })
 
   field_question = temp_field_question
@@ -303,10 +314,10 @@ subquestion: |
   For each field:
 
   1. Write the question that the user will see
-  1. Pick the type of field the user will see:
-      1. A **checkbox**
-      1. **One line** to put their answer on
-      1. Room for a **paragraph** or more for their answer
+  1. Pick the type of question the user will see:
+      1. `checkbox`: A **checkbox**
+      1. `text`: **One line** to put their answer on
+      1. `area`: Room for a **paragraph** or more for their answer
   1. Pick the type of information the user needs to give. This sounds a bit like a repeat of the last one, but it really isn't. This is the way it's working for now.
       1. `text` is one line to put text in
       1. `integer` is one line to put a **whole number** in
